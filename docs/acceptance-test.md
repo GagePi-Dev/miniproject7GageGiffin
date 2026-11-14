@@ -103,3 +103,19 @@
   string. I can make that change if you want.
 
 ✻ Crunched for 5s · done 1:12 PM
+---
+
+## Tool Calls
+
+The export above collapses each tool call to "Called practice-hub". The table below lists the actual calls Claude Code made to this server during that session. It was taken from the session's log file (`~/.claude/projects/.../c7e1aa6f-00da-4e71-89f8-045452cb2e77.jsonl`). Times are UTC.
+
+| Time | Step | Tool | Arguments | Result |
+|---|---|---|---|---|
+| 19:05:38 | Read | `list_posts` | `{}` (defaults: `mine=true`, `limit=20`) | `[]`, no posts yet |
+| 19:05:42 | Read | `list_posts` | `{"mine": false, "limit": 5}` | 5 posts by other users (ids 60, 59, 58, 57, 56), which confirms the token works |
+| 19:06:14 | Create | `create_post` | `{"title": "MCP Server Test", "body": "Created by Claude Code through my Mini Project 7 MCP server.", "tags": ["mcp", "python"]}` | New post `id: 61`, author Gage Giffin |
+| 19:11:26 | Modify | `update_post` | `{"post_id": 61, "title": "MCP Server Test (edited)", "tags": ["mcp", "python", "inf601"]}` | Post 61 with the new title and tags; `updated_at` 19:11:27 |
+| 19:11:51 | Confirm | `get_post` | `{"post_id": 61}` | Title "MCP Server Test (edited)", tags mcp, python, inf601 |
+| 19:12:04 | Error | `get_post` | `{"post_id": 9999999999}` | `"Error 404: post 9999999999 does not exist."` |
+
+In the log, the tools appear as `mcp__practice-hub__<tool>`, which is how Claude Code names tools that come from the `practice-hub` MCP server. Other users' post details are left out of this table on purpose.

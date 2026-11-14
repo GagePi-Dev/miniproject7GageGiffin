@@ -180,6 +180,7 @@ This project was built with help from **Claude Code** (Anthropic's AI coding ass
 - **Testing:** wrote throwaway test scripts (not part of the repo) that started the server over stdio with a dummy token and listed its tools, ran every tool against a fake API returning 200, 201, 204, 401, 403, 404, 422 and 500 responses plus a timeout and a refused connection, and checked the startup message when the token is missing. With my approval, it ran one live, read-only `list_posts` call to confirm my token worked.
 - **Acceptance test help:** explained how to run the acceptance test and reviewed the exported transcript for coverage and leaked secrets.
 - **Acceptance test session:** the transcript in `docs/acceptance-test.md` comes from a separate, fresh Claude Code session (Claude Opus 5.5) that called my server's tools in response to my prompts. In that session Claude also suggested raising exceptions instead of returning error strings; I decided to keep returning clear messages, which matches the assignment.
+- **Tool-call table:** extracted the tool calls from the acceptance-test session's log and added them as a table to `docs/acceptance-test.md`, leaving out other users' post details.
 - **Documentation:** drafted this README.
 
 ### What I Did Myself
