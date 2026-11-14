@@ -48,7 +48,7 @@ def _error_message(resp: httpx.Response, post_id: int | None) -> str:
     code = resp.status_code
     detail = _error_detail(resp)
     if code == 401:
-        return "Error 401: the API rejected the token. Check PRACTICE_API_TOKEN in your .env file."
+        return "Error 401: the API rejected the token. Check PRACTICE_API_TOKEN (set with --env or in .env)."
     if code == 403:
         if post_id is not None:
             return f"Error 403: post {post_id} belongs to another user. You can only change or delete your own posts."

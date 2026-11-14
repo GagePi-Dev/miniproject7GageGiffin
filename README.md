@@ -24,7 +24,7 @@ Every request goes through one helper, `_request()`, which never raises. When so
 
 | Situation | Message the tool returns |
 |---|---|
-| 401 bad or missing token | `Error 401: the API rejected the token. Check PRACTICE_API_TOKEN in your .env file.` |
+| 401 bad or missing token | `Error 401: the API rejected the token. Check PRACTICE_API_TOKEN (set with --env or in .env).` |
 | 403 post isn't yours | `Error 403: post 12 belongs to another user. You can only change or delete your own posts.` |
 | 404 post doesn't exist | `Error 404: post 12 does not exist.` |
 | 422 invalid input | `Error 422: the API rejected the input: <the API's validation message>` |
@@ -83,50 +83,73 @@ pip install -r requirements.txt
 
 ## Setting the Environment Variables
 
-The server reads two settings. Nothing is hard-coded in `server.py`.
+The server reads two environment variables. Nothing is hard-coded in `server.py`.
 
 | Variable | Value |
 |---|---|
 | `PRACTICE_API_URL` | `https://practice.fhsucyber.com` (used as the default if not set) |
 | `PRACTICE_API_TOKEN` | Your personal Practice Hub API token (required) |
 
-**Recommended: a `.env` file.** Copy the template and paste your token into it:
+**When registering with Claude Code (recommended):** pass both with `--env`, as shown in the next section. Claude Code then sets them every time it starts the server.
+
+**In your shell (for running or testing the server yourself):**
 
 ```bash
-cp .env.example .env            # Linux / macOS
+export PRACTICE_API_URL="https://practice.fhsucyber.com"     # macOS / Linux
+export PRACTICE_API_TOKEN="your-token"
+```
+
+```powershell
+$env:PRACTICE_API_URL = "https://practice.fhsucyber.com"     # Windows PowerShell
+$env:PRACTICE_API_TOKEN = "your-token"
+```
+
+**Optional fallback: a `.env` file.** If a variable isn't set in the environment, `server.py` looks for it in a `.env` file next to `server.py`:
+
+```bash
+cp .env.example .env            # macOS / Linux
 copy .env.example .env          # Windows
 ```
 
-```text
-PRACTICE_API_URL=https://practice.fhsucyber.com
-PRACTICE_API_TOKEN=your_token_here
-```
+Then paste your token into `.env`. Real environment variables always take priority over `.env`. `.env` is listed in `.gitignore` and is never committed.
 
-`server.py` loads the `.env` file from its own folder, so it works no matter which directory Claude Code starts it from. `.env` is listed in `.gitignore` and is never committed.
-
-**Alternative: shell variables.** Variables already set in the environment take priority over `.env`:
-
-```bash
-export PRACTICE_API_TOKEN="your_token_here"         # Linux / macOS
-$env:PRACTICE_API_TOKEN = "your_token_here"         # Windows (PowerShell)
-```
+If `PRACTICE_API_TOKEN` isn't set in either place, the server refuses to start and prints why.
 
 ## Registering with Claude Code
 
-Register the server using the virtual environment's Python and the full path to `server.py`, so Claude Code can start it from anywhere. The exact command used for this project:
+Register the server with both environment variables and the **absolute** path to `server.py`. Use the virtual environment's Python, so the packages from `requirements.txt` are found.
+
+**macOS / Linux:**
+
+```bash
+claude mcp add practice-hub \
+  --env PRACTICE_API_URL=https://practice.fhsucyber.com \
+  --env PRACTICE_API_TOKEN=your-token \
+  -- /absolute/path/to/miniproject7GageGiffin/.venv/bin/python /absolute/path/to/miniproject7GageGiffin/server.py
+```
+
+**Windows PowerShell** (the line-continuation character is a backtick):
+
+```powershell
+claude mcp add practice-hub `
+  --env PRACTICE_API_URL=https://practice.fhsucyber.com `
+  --env PRACTICE_API_TOKEN=your-token `
+  -- C:\absolute\path\to\miniproject7GageGiffin\.venv\Scripts\python.exe C:\absolute\path\to\miniproject7GageGiffin\server.py
+```
+
+If the line continuations give you trouble, put the whole command on one line, which works in every shell:
+
+```bash
+claude mcp add practice-hub --env PRACTICE_API_URL=https://practice.fhsucyber.com --env PRACTICE_API_TOKEN=your-token -- /absolute/path/to/miniproject7GageGiffin/.venv/bin/python /absolute/path/to/miniproject7GageGiffin/server.py
+```
+
+`--env` stores the token in Claude Code's own config file (`~/.claude.json`), outside this repository.
+
+**Alternative: registering with a `.env` file.** If your token is in `.env`, leave out the `--env` flags. This is the command used for this project's acceptance test:
 
 ```bash
 claude mcp add practice-hub -- /home/ggiffin/Projects/FHSU/miniproject7GageGiffin/.venv/bin/python /home/ggiffin/Projects/FHSU/miniproject7GageGiffin/server.py
 ```
-
-For your own copy, replace the paths with where you cloned the repo:
-
-```bash
-claude mcp add practice-hub -- /path/to/miniproject7GageGiffin/.venv/bin/python /path/to/miniproject7GageGiffin/server.py               # Linux / macOS
-claude mcp add practice-hub -- C:\path\to\miniproject7GageGiffin\.venv\Scripts\python.exe C:\path\to\miniproject7GageGiffin\server.py   # Windows
-```
-
-No `-e PRACTICE_API_TOKEN=...` flag is needed because the token comes from `.env`. That also keeps the token out of Claude Code's config file.
 
 Check that it connected:
 
@@ -182,6 +205,7 @@ This project was built with help from **Claude Code** (Anthropic's AI coding ass
 - **Acceptance test session:** the transcript in `docs/acceptance-test.md` comes from a separate, fresh Claude Code session (Claude Opus 5.5) that called my server's tools in response to my prompts. In that session Claude also suggested raising exceptions instead of returning error strings; I decided to keep returning clear messages, which matches the assignment.
 - **Tool-call table:** extracted the tool calls from the acceptance-test session's log and added them as a table to `docs/acceptance-test.md`, leaving out other users' post details.
 - **Documentation:** drafted this README.
+- **Matching the course instructions:** after I found the course page's `claude mcp add --env ...` command, confirmed that `server.py` already reads real environment variables first (they override `.env`, and the server starts with no `.env` at all), then updated the README to make the `--env` registration the main method and `.env` an optional fallback.
 
 ### What I Did Myself
 
